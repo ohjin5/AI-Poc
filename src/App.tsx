@@ -13,6 +13,7 @@ import {
   X,
   RefreshCw,
   Sparkles,
+  Lightbulb,
   Activity,
   FileText,
   Mic,
@@ -552,14 +553,14 @@ const themeConfig = {
     emoji: '🩺'
   },
   nurse: {
-    color: 'emerald',
-    bg: 'bg-emerald-600',
-    text: 'text-emerald-600',
-    lightBg: 'bg-emerald-50',
-    shadow: 'shadow-emerald-200',
-    border: 'border-emerald-200',
-    accentBorder: 'border-emerald-500',
-    ripple: 'border-emerald-200/40',
+    color: 'teal',
+    bg: 'bg-teal-600',
+    text: 'text-teal-600',
+    lightBg: 'bg-teal-50',
+    shadow: 'shadow-teal-200',
+    border: 'border-teal-200',
+    accentBorder: 'border-teal-500',
+    ripple: 'border-teal-200/40',
     icon: <ClipboardCheck className="w-4 h-4 md:w-5 md:h-5" />,
     label: '간호사',
     emoji: '📋'
@@ -619,6 +620,23 @@ export default function App() {
 
   const currentTheme = themeConfig[selectedOccupation];
 
+  const getGoogleFormUrl = (idea: IdeaCard) => {
+    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScYzZPqbHKH_-RXXKdvysGUoGp2mB8nglbEx8iNr7mPvGERhg/viewform?usp=pp_url";
+    const entries = {
+      "entry.665053671": idea.title,
+      "entry.1063744925": idea.painPoint,
+      "entry.923740637": idea.improvement,
+      "entry.172141257": idea.impact,
+      "entry.1233264451": idea.resource
+    };
+    
+    const queryString = Object.entries(entries)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&');
+      
+    return `${baseUrl}&${queryString}`;
+  };
+
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-['Pretendard'] text-gray-900 selection:bg-blue-100 overflow-x-hidden">
       {/* Background */}
@@ -663,6 +681,12 @@ export default function App() {
 
       {/* 3. Tabs & Dynamic Title Section */}
       <section className="relative pt-8 pb-6 px-6 z-10 max-w-6xl mx-auto text-center">
+        <div className="mb-10">
+          <p className="text-gray-500 text-base md:text-lg font-medium break-keep">
+            어떤 아이디어를 내야 할지 막막하다면,<br className="md:hidden" /> 아래 직군별 예시를 참고해 보세요.
+          </p>
+        </div>
+
         <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-10 px-2">
           {(['medical', 'nurse', 'admin'] as Occupation[]).map((occ) => {
             const theme = themeConfig[occ];
@@ -694,6 +718,14 @@ export default function App() {
             {currentTheme.label}을 위한 추천 아이디어
           </h2>
         </motion.div>
+
+        {/* Info Box */}
+        <div className={`max-w-4xl mx-auto ${currentTheme.lightBg}/50 rounded-2xl p-4 md:p-5 mb-8 flex items-start gap-3 border ${currentTheme.border}/30 text-left`}>
+          <Lightbulb className={`w-5 h-5 md:w-6 md:h-6 ${currentTheme.text} shrink-0 mt-0.5`} />
+          <p className="text-sm md:text-base text-gray-600 leading-relaxed break-keep">
+            <span className="font-bold">안내:</span> 예시 가이드를 그대로 활용하여 제출하셔도 좋습니다. 하지만 현장에서 직접 겪으신 여러분만의 생생한 경험과 새로운 아이디어가 혁신에 가장 큰 힘이 됩니다. 예시는 가볍게 참고만 부탁드립니다!
+          </p>
+        </div>
       </section>
 
       {/* 4. Cards & Refresh Section */}
@@ -756,7 +788,7 @@ export default function App() {
 
       {/* 5. Footer */}
       <footer className="py-16 px-6 bg-white border-t border-gray-50 text-center text-gray-400 text-sm z-10 relative">
-        <p className="font-medium">© 2026 은평 AI 아이디어 공모. All rights reserved.</p>
+        <p className="font-medium">© 2026 은평성모병원 정보보호팀. All rights reserved.</p>
       </footer>
 
       {/* Modal */}
@@ -826,12 +858,24 @@ export default function App() {
                   </div>
                 </div>
                 
-                <button
-                  onClick={() => setSelectedIdea(null)}
-                  className={`w-full mt-10 md:mt-16 py-4 md:py-6 ${currentTheme.bg} text-white font-bold rounded-[20px] md:rounded-[24px] hover:brightness-110 transition-all text-lg md:text-xl shadow-lg`}
-                >
-                  가이드 확인 완료
-                </button>
+                <div className="mt-10 md:mt-16 flex flex-col gap-3">
+                  <button
+                    onClick={() => {
+                      if (selectedIdea) {
+                        window.open(getGoogleFormUrl(selectedIdea), '_blank');
+                      }
+                    }}
+                    className={`w-full py-4 md:py-6 ${currentTheme.bg} text-white font-bold rounded-[20px] md:rounded-[24px] hover:brightness-110 transition-all text-lg md:text-xl shadow-lg flex items-center justify-center gap-2 break-keep`}
+                  >
+                    📝 이 가이드 복사해서 공모하기
+                  </button>
+                  <button
+                    onClick={() => setSelectedIdea(null)}
+                    className="w-full py-4 md:py-6 bg-gray-100 text-gray-500 font-bold rounded-[20px] md:rounded-[24px] hover:bg-gray-200 transition-all text-lg md:text-xl break-keep"
+                  >
+                    가이드 닫기
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
