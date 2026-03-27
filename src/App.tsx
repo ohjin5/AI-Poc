@@ -508,13 +508,13 @@ const ideaPool: IdeaCard[] = [
   }
 ];
 
-const WaterRipple = () => (
+const WaterRipple = ({ colorClass }: { colorClass: string }) => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div className="absolute inset-0 bg-[#f4f7f9]" />
     {[...Array(4)].map((_, i) => (
       <motion.div
         key={i}
-        className="absolute inset-0 border-[1px] border-blue-200/40 rounded-full"
+        className={`absolute inset-0 border-[1px] ${colorClass} rounded-full`}
         initial={{ scale: 0.4, opacity: 0 }}
         animate={{ 
           scale: [0.4, 2.8], 
@@ -537,93 +537,180 @@ const WaterRipple = () => (
   </div>
 );
 
+const themeConfig = {
+  medical: {
+    color: 'blue',
+    bg: 'bg-blue-600',
+    text: 'text-blue-600',
+    lightBg: 'bg-blue-50',
+    shadow: 'shadow-blue-200',
+    border: 'border-blue-200',
+    accentBorder: 'border-blue-500',
+    ripple: 'border-blue-200/40',
+    icon: <Stethoscope className="w-4 h-4 md:w-5 md:h-5" />,
+    label: '의료진',
+    emoji: '🩺'
+  },
+  nurse: {
+    color: 'emerald',
+    bg: 'bg-emerald-600',
+    text: 'text-emerald-600',
+    lightBg: 'bg-emerald-50',
+    shadow: 'shadow-emerald-200',
+    border: 'border-emerald-200',
+    accentBorder: 'border-emerald-500',
+    ripple: 'border-emerald-200/40',
+    icon: <ClipboardCheck className="w-4 h-4 md:w-5 md:h-5" />,
+    label: '간호사',
+    emoji: '📋'
+  },
+  admin: {
+    color: 'indigo',
+    bg: 'bg-indigo-600',
+    text: 'text-indigo-600',
+    lightBg: 'bg-indigo-50',
+    shadow: 'shadow-indigo-200',
+    border: 'border-indigo-200',
+    accentBorder: 'border-indigo-500',
+    ripple: 'border-indigo-200/40',
+    icon: <Building2 className="w-4 h-4 md:w-5 md:h-5" />,
+    label: '행정직',
+    emoji: '🏢'
+  }
+};
+
 export default function App() {
   const [selectedOccupation, setSelectedOccupation] = useState<Occupation>('medical');
   const [displayIdeas, setDisplayIdeas] = useState<IdeaCard[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<IdeaCard | null>(null);
+  const [transitionType, setTransitionType] = useState<'tab' | 'refresh'>('refresh');
 
   // Shuffle function
-  const shuffleIdeas = (occ: Occupation) => {
+  const shuffleIdeas = (occ: Occupation, type: 'tab' | 'refresh' = 'refresh') => {
+    setTransitionType(type);
     const pool = ideaPool.filter(idea => idea.occupation === occ);
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     setDisplayIdeas(shuffled.slice(0, 3));
   };
 
-  // Initial load and occupation change
+  // Initial load
   useEffect(() => {
-    shuffleIdeas(selectedOccupation);
-  }, [selectedOccupation]);
+    shuffleIdeas('medical', 'tab');
+  }, []);
+
+  // Occupation change handler
+  const handleOccupationChange = (occ: Occupation) => {
+    if (occ === selectedOccupation) return;
+    setSelectedOccupation(occ);
+    shuffleIdeas(occ, 'tab');
+  };
+
+  // Body scroll lock
+  useEffect(() => {
+    if (selectedIdea) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedIdea]);
+
+  const currentTheme = themeConfig[selectedOccupation];
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-['Pretendard'] text-gray-900 selection:bg-blue-100 overflow-x-hidden">
       {/* Background */}
-      <WaterRipple />
+      <WaterRipple colorClass={currentTheme.ripple} />
 
-      {/* Header */}
-      <header className="relative pt-24 pb-16 px-6 text-center z-10 max-w-6xl mx-auto">
+      {/* 1. Header */}
+      <header className="relative pt-16 pb-8 md:pt-24 md:pb-12 px-6 text-center z-10 max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-8 text-gray-900">
-            은평 <span className="text-blue-600">AI</span> 아이디어 공모
+          <h1 className="text-3xl md:text-7xl font-black tracking-tight mb-4 md:mb-8 text-gray-900 break-keep">
+            은평 <span className={currentTheme.text}>AI</span> 아이디어 공모
           </h1>
-          <p className="text-xl text-gray-500 font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-            의료 현장의 작은 아이디어가 혁신의 시작입니다. <br />
-            당신의 직군을 선택하고 창의적인 영감을 얻어보세요.
+          <p className="text-sm md:text-xl text-gray-500 font-medium max-w-2xl mx-auto leading-relaxed break-keep px-4 md:px-0">
+            의료 현장의 작은 아이디어가 혁신의 시작입니다. <br className="hidden md:block" />
+            현장의 불편함을 해결할 당신의 따뜻한 시선을 들려주세요.
           </p>
-
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
-            {(['medical', 'nurse', 'admin'] as Occupation[]).map((occ) => (
-              <button
-                key={occ}
-                onClick={() => setSelectedOccupation(occ)}
-                className={`px-10 py-4 rounded-full text-lg font-bold transition-all duration-500 flex items-center gap-2 ${
-                  selectedOccupation === occ 
-                  ? 'bg-blue-600 text-white shadow-xl shadow-blue-200 scale-105' 
-                  : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'
-                }`}
-              >
-                {occ === 'medical' && <Stethoscope className="w-5 h-5" />}
-                {occ === 'nurse' && <ClipboardCheck className="w-5 h-5" />}
-                {occ === 'admin' && <Building2 className="w-5 h-5" />}
-                {occ === 'medical' ? '의료진' : occ === 'nurse' ? '간호사' : '행정직'}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-col items-center gap-4 mb-8">
-            <button
-              onClick={() => shuffleIdeas(selectedOccupation)}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-white/80 backdrop-blur-sm text-blue-600 font-bold rounded-full border border-blue-200 hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm group"
-            >
-              <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-              다른 예시 보기
-            </button>
-            <p className="text-sm text-gray-400 font-medium max-w-lg leading-relaxed">
-              안내해 드린 예시는 참고용이며, 정답은 정해져 있지 않습니다. <br className="hidden md:block" />
-              사소하고 개인적인 경험이라도 소중한 아이디어의 시작이 될 수 있습니다.
-            </p>
-          </div>
         </motion.div>
       </header>
 
-      {/* Cards Section */}
+      {/* 2. CTA Section */}
+      <section className="relative py-6 md:py-12 px-6 z-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.a
+            href="https://forms.gle/G8gWQbMefwzb82Q96"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-3 px-6 py-4 md:px-14 md:py-6 ${currentTheme.bg} text-white font-bold rounded-full text-base md:text-2xl shadow-2xl ${currentTheme.shadow} hover:brightness-110 transition-all group break-keep`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            아이디어 제출하러 가기
+            <ArrowRight className="w-5 h-5 md:w-7 md:h-7 group-hover:translate-x-1 transition-transform" />
+          </motion.a>
+          <p className="mt-4 md:mt-6 text-xs md:text-base text-gray-400 font-medium break-keep">
+            * 거창한 기술이 아니어도 괜찮습니다. 사소한 아이디어도 환영합니다!
+          </p>
+        </div>
+      </section>
+
+      {/* 3. Tabs & Dynamic Title Section */}
+      <section className="relative pt-8 pb-6 px-6 z-10 max-w-6xl mx-auto text-center">
+        <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-10 px-2">
+          {(['medical', 'nurse', 'admin'] as Occupation[]).map((occ) => {
+            const theme = themeConfig[occ];
+            return (
+              <button
+                key={occ}
+                onClick={() => handleOccupationChange(occ)}
+                className={`px-4 py-2.5 md:px-10 md:py-4 rounded-full text-xs md:text-lg font-bold transition-all duration-300 flex items-center gap-1.5 md:gap-2 ${
+                  selectedOccupation === occ 
+                  ? `${theme.bg} text-white shadow-xl ${theme.shadow} scale-105` 
+                  : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'
+                }`}
+              >
+                {theme.icon}
+                {theme.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <motion.div
+          key={selectedOccupation}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h2 className="text-xl md:text-4xl font-black tracking-tight break-keep text-gray-800 flex items-center justify-center gap-2">
+            <span>{currentTheme.emoji}</span>
+            {currentTheme.label}을 위한 추천 아이디어
+          </h2>
+        </motion.div>
+      </section>
+
+      {/* 4. Cards & Refresh Section */}
       <section className="relative px-6 pb-24 z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none scrollbar-hide gap-4 md:gap-8 pb-8 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${selectedOccupation}-${displayIdeas.map(i => i.id).join('-')}`}
                 className="contents"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={transitionType === 'tab' ? { opacity: 0, x: 50 } : { opacity: 0, scale: 0.95 }}
+                animate={transitionType === 'tab' ? { opacity: 1, x: 0 } : { opacity: 1, scale: 1 }}
+                exit={transitionType === 'tab' ? { opacity: 0, x: -50 } : { opacity: 0, scale: 0.95 }}
                 transition={{ 
-                  duration: 0.6, 
-                  ease: [0.23, 1, 0.32, 1], // Custom cubic-bezier for a smooth "float up"
-                  staggerChildren: 0.1 
+                  duration: 0.3, 
+                  ease: "easeOut",
+                  staggerChildren: 0.05 
                 }}
               >
                 {displayIdeas.map((idea) => (
@@ -636,17 +723,17 @@ export default function App() {
                       boxShadow: "0 25px 50px rgba(0, 0, 0, 0.1)"
                     }}
                     onClick={() => setSelectedIdea(idea)}
-                    className="relative bg-white/90 backdrop-blur-md rounded-[40px] p-10 cursor-pointer border border-white/60 shadow-sm flex flex-col items-start min-h-[350px] group overflow-hidden"
+                    className={`flex-shrink-0 w-[80vw] min-w-[80vw] md:w-full md:min-w-0 snap-center md:snap-align-none relative bg-white/90 backdrop-blur-md rounded-[32px] md:rounded-[40px] p-6 md:p-10 cursor-pointer border border-white/60 shadow-sm flex flex-col items-start min-h-[280px] md:min-h-[350px] group overflow-hidden`}
                   >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110" />
-                    <div className="p-4 bg-blue-50 rounded-2xl text-blue-600 mb-8 group-hover:scale-110 transition-transform duration-500 relative z-10">
+                    <div className={`absolute top-0 right-0 w-20 h-20 md:w-24 md:h-24 ${currentTheme.lightBg}/50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110`} />
+                    <div className={`p-3 md:p-4 ${currentTheme.lightBg} rounded-xl md:rounded-2xl ${currentTheme.text} mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-500 relative z-10`}>
                       {idea.icon}
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight relative z-10">{idea.title}</h3>
-                    <p className="text-gray-500 leading-relaxed font-medium line-clamp-3 relative z-10">
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 tracking-tight relative z-10 break-keep">{idea.title}</h3>
+                    <p className="text-sm md:text-base text-gray-500 leading-relaxed font-medium line-clamp-3 relative z-10 break-keep">
                       {idea.painPoint}
                     </p>
-                    <div className="mt-auto pt-6 flex items-center text-blue-500 font-bold gap-2 relative z-10">
+                    <div className={`mt-8 md:mt-auto pt-4 flex items-center ${currentTheme.text} font-bold text-sm md:text-base gap-2 relative z-10`}>
                       상세 기획 가이드 보기 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </motion.div>
@@ -654,34 +741,20 @@ export default function App() {
               </motion.div>
             </AnimatePresence>
           </div>
+
+          <div className="mt-10 text-center">
+            <button
+              onClick={() => shuffleIdeas(selectedOccupation, 'refresh')}
+              className={`inline-flex items-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-white/80 backdrop-blur-sm ${currentTheme.text} font-bold rounded-full border ${currentTheme.border} hover:bg-gray-50 transition-all duration-300 shadow-sm group text-sm md:text-lg`}
+            >
+              <RefreshCw className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-180 transition-transform duration-500" />
+              다른 예시 보기
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative py-32 px-6 bg-white z-10">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-black mb-10 tracking-tight">
-            당신의 기발한 아이디어를 기다립니다.
-          </h2>
-          <p className="text-xl text-gray-500 font-medium mb-12 leading-relaxed">
-            거창한 기술이 아니어도 괜찮습니다. <br />
-            현장의 작은 불편함을 해결할 당신의 따뜻한 시선을 들려주세요.
-          </p>
-          <motion.a
-            href="https://forms.gle/G8gWQbMefwzb82Q96"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-14 py-6 bg-blue-600 text-white font-bold rounded-full text-2xl shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            아이디어 제출하러 가기
-            <ArrowRight className="w-7 h-7 group-hover:translate-x-1 transition-transform" />
-          </motion.a>
-        </div>
-      </section>
-
-      {/* Footer */}
+      {/* 5. Footer */}
       <footer className="py-16 px-6 bg-white border-t border-gray-50 text-center text-gray-400 text-sm z-10 relative">
         <p className="font-medium">© 2026 은평 AI 아이디어 공모. All rights reserved.</p>
       </footer>
@@ -689,7 +762,7 @@ export default function App() {
       {/* Modal */}
       <AnimatePresence>
         {selectedIdea && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -698,61 +771,68 @@ export default function App() {
               className="absolute inset-0 bg-black/20 backdrop-blur-md"
             />
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[48px] p-10 md:p-16 shadow-2xl border border-gray-100 overflow-hidden"
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-2xl bg-white rounded-t-[32px] md:rounded-[48px] shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[85vh] md:max-h-[90vh] md:m-6"
             >
-              <button 
-                onClick={() => setSelectedIdea(null)}
-                className="absolute top-10 right-10 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
-              >
-                <X className="w-8 h-8" />
-              </button>
-              
-              <div className="flex items-center gap-6 mb-12">
-                <div className="p-5 bg-blue-50 rounded-3xl text-blue-600">
-                  {selectedIdea.icon}
-                </div>
-                <div>
-                  <span className="text-xs font-black text-blue-500 uppercase tracking-[0.2em] mb-2 block">Idea Showcase</span>
-                  <h3 className="text-3xl md:text-4xl font-black tracking-tight">{selectedIdea.title}</h3>
-                </div>
+              {/* Sticky Header with Close Button */}
+              <div className="sticky top-0 bg-white/80 backdrop-blur-md z-20 px-6 py-4 md:px-16 md:pt-16 md:pb-0 flex justify-end">
+                <button 
+                  onClick={() => setSelectedIdea(null)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+                >
+                  <X className="w-6 h-6 md:w-8 md:h-8" />
+                </button>
               </div>
-              
-              <div className="space-y-10">
-                <div className="relative pl-8 border-l-4 border-blue-500">
-                  <h4 className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2">1. 아이디어 이름</h4>
-                  <p className="text-2xl font-bold text-gray-900">{selectedIdea.title}</p>
+
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto scrollbar-hide p-6 pt-0 md:p-12 md:pt-4 flex-1">
+                <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-12">
+                  <div className={`p-3 md:p-5 ${currentTheme.lightBg} rounded-2xl md:rounded-3xl ${currentTheme.text} shrink-0`}>
+                    {selectedIdea.icon}
+                  </div>
+                  <div>
+                    <span className={`text-[10px] md:text-xs font-black ${currentTheme.text} uppercase tracking-[0.2em] mb-1 md:mb-2 block`}>Idea Showcase</span>
+                    <h3 className="text-2xl md:text-4xl font-black tracking-tight break-keep">{selectedIdea.title}</h3>
+                  </div>
                 </div>
                 
-                <div className="relative pl-8 border-l-4 border-gray-200">
-                  <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">2. 시작된 고민</h4>
-                  <p className="text-lg text-gray-600 leading-relaxed font-medium italic">"{selectedIdea.painPoint}"</p>
+                <div className="space-y-6 md:space-y-10">
+                  <div className={`relative pl-6 md:pl-8 border-l-4 ${currentTheme.accentBorder}`}>
+                    <h4 className={`text-[10px] md:text-xs font-black ${currentTheme.text} uppercase tracking-widest mb-1 md:mb-2`}>1. 아이디어 이름</h4>
+                    <p className="text-lg md:text-2xl font-bold text-gray-900 break-keep">{selectedIdea.title}</p>
+                  </div>
+                  
+                  <div className="relative pl-6 md:pl-8 border-l-4 border-gray-200">
+                    <h4 className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest mb-1 md:mb-2">2. 시작된 고민</h4>
+                    <p className="text-base md:text-lg text-gray-600 leading-relaxed font-medium italic break-keep">"{selectedIdea.painPoint}"</p>
+                  </div>
+                  
+                  <div className={`relative pl-6 md:pl-8 border-l-4 ${currentTheme.accentBorder}`}>
+                    <h4 className={`text-[10px] md:text-xs font-black ${currentTheme.text} uppercase tracking-widest mb-1 md:mb-2`}>3. Gemini가 도와줄 방법</h4>
+                    <p className="text-base md:text-lg text-gray-800 leading-relaxed font-bold break-keep">{selectedIdea.improvement}</p>
+                  </div>
+
+                  <div className="relative pl-6 md:pl-8 border-l-4 border-green-500">
+                    <h4 className="text-[10px] md:text-xs font-black text-green-500 uppercase tracking-widest mb-1 md:mb-2">4. 실현 후 변화</h4>
+                    <p className="text-base md:text-lg text-green-700 leading-relaxed font-bold break-keep">{selectedIdea.impact}</p>
+                  </div>
+
+                  <div className="relative pl-6 md:pl-8 border-l-4 border-gray-100">
+                    <h4 className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest mb-1 md:mb-2">5. 공부해야 할 자료</h4>
+                    <p className="text-sm md:text-lg text-gray-500 leading-relaxed break-keep">{selectedIdea.resource}</p>
+                  </div>
                 </div>
                 
-                <div className="relative pl-8 border-l-4 border-blue-600">
-                  <h4 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2">3. Gemini가 도와줄 방법</h4>
-                  <p className="text-lg text-gray-800 leading-relaxed font-bold">{selectedIdea.improvement}</p>
-                </div>
-
-                <div className="relative pl-8 border-l-4 border-green-500">
-                  <h4 className="text-xs font-black text-green-500 uppercase tracking-widest mb-2">4. 실현 후 변화</h4>
-                  <p className="text-lg text-green-700 leading-relaxed font-bold">{selectedIdea.impact}</p>
-                </div>
-
-                <div className="relative pl-8 border-l-4 border-gray-100">
-                  <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">5. 공부해야 할 자료</h4>
-                  <p className="text-lg text-gray-500 leading-relaxed">{selectedIdea.resource}</p>
-                </div>
+                <button
+                  onClick={() => setSelectedIdea(null)}
+                  className={`w-full mt-10 md:mt-16 py-4 md:py-6 ${currentTheme.bg} text-white font-bold rounded-[20px] md:rounded-[24px] hover:brightness-110 transition-all text-lg md:text-xl shadow-lg`}
+                >
+                  가이드 확인 완료
+                </button>
               </div>
-              
-              <button
-                onClick={() => setSelectedIdea(null)}
-                className="w-full mt-16 py-6 bg-gray-900 text-white font-bold rounded-[24px] hover:bg-gray-800 transition-all text-xl shadow-lg"
-              >
-                가이드 확인 완료
-              </button>
             </motion.div>
           </div>
         )}
