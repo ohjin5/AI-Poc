@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>은평 AI 아이디어 공모</title>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root {
+            --primary-color: #0066ff;
+            --bg-color: #f5f7fa;
+            --text-main: #1d1d1f;
+            --text-sub: #86868b;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* Water Ripple Background */
+        .ripple-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            overflow: hidden;
+        }
+
+        .ripple {
+            position: absolute;
+            border: 1px solid rgba(0, 102, 255, 0.1);
+            border-radius: 50%;
+            animation: ripple-anim 15s infinite linear;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-anim {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            20% { opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+
+        .main-title {
+            font-size: 64px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .sub-title {
+            font-size: 20px;
+            color: var(--text-sub);
+            font-weight: 500;
+            margin-bottom: 48px;
+        }
+
+        /* Occupation Buttons */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .tab-btn {
+            padding: 14px 32px;
+            border-radius: 100px;
+            border: 1px solid #e5e5e5;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .shuffle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto 60px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            transition: opacity 0.3s;
+        }
+
+        .shuffle-btn:hover {
+            opacity: 0.7;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 100px;
+            min-height: 400px;
+        }
+
+        @media (max-width: 900px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .main-title { font-size: 48px; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: float 6s infinite ease-in-out;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: #f0f6ff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .card-desc {
+            font-size: 15px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 120px 0;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .cta-guide {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .cta-highlight {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 48px;
+            color: var(--primary-color);
+        }
+
+        .submit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 48px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 100px;
+            font-size: 20px;
+            font-weight: 700;
+            transition: all 0.4s;
+            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.3);
+            background: #0055d4;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 40px;
+            padding: 48px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            background: #f5f5f7;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-sub);
+        }
+
+        .modal-header {
+            margin-bottom: 32px;
+        }
+
+        .modal-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .modal-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .modal-tech {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            background: #f0f6ff;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .modal-section-text {
+            font-size: 16px;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        footer {
+            padding: 60px 0;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ripple-bg" id="rippleBg"></div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">은평 AI 아이디어 공모</h1>
+            <p class="sub-title">현장의 목소리가 혁신이 됩니다. 당신의 아이디어를 들려주세요.</p>
+
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="changeTab('medical', this)">의료진</button>
+                <button class="tab-btn" onclick="changeTab('nurse', this)">간호사</button>
+                <button class="tab-btn" onclick="changeTab('admin', this)">행정직</button>
+            </div>
+
+            <button class="shuffle-btn" onclick="renderCards()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                다른 예시 보기 (랜덤 섞기)
+            </button>
+        </header>
+
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Cards will be injected here -->
+        </div>
+    </div>
+
+    <section class="cta-section">
+        <div class="container">
+            <p class="cta-guide">업무 중 어떤 부분을 AI로 개선하고 싶으신가요?</p>
+            <p class="cta-highlight">당신의 기발한 아이디어를 기다립니다.</p>
+            <a href="#" target="_blank" class="submit-btn">
+                아이디어 제출하러 가기
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 은평 AI 아이디어 공모. All rights reserved.</p>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal()">✕</button>
+            <div class="modal-header">
+                <span class="modal-label">Idea Guide</span>
+                <h2 class="modal-title" id="modalTitle">아이디어 명칭</h2>
+                <div class="modal-tech" id="modalTech">AI 기술 방식</div>
+            </div>
+            <div class="modal-section">
+                <h4 class="modal-section-title">구체적인 내용 (Pain Point)</h4>
+                <p class="modal-section-text" id="modalPain">현재 업무의 불편함과 AI가 수행할 역할에 대한 설명입니다.</p>
+            </div>
+            <div class="modal-section">
+                <h4 class="modal-section-title">개선 방향 (Expected Effect)</h4>
+                <p class="modal-section-text" id="modalEffect">도입 후 업무 효율성이나 환자 안전이 어떻게 개선되는지에 대한 설명입니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Pool
+        const ideaData = {
+            medical: [
+                { title: "판독 보조 AI", tech: "이미지 분석 AI", pain: "매일 수천 장의 CT/MRI 영상을 판독해야 하는 의료진의 피로도와 미세 병변 오진 위험", effect: "AI가 1차 판독하여 이상 징후를 즉시 알림으로써 판독 정확도를 높이고 업무 시간을 단축함" },
+                { title: "논문 요약 봇", tech: "생성형 AI (LLM)", pain: "방대한 최신 의학 논문을 모두 팔로우업하기 어려운 시간적 제약", effect: "전공 분야와 최근 진료 패턴을 분석하여 꼭 읽어야 할 논문 핵심 요약본을 매주 제공함" },
+                { title: "회진 기록 자동화", tech: "음성 인식 (STT) 및 NLP", pain: "회진 후 별도의 차트 기록 업무로 인한 진료 집중도 저하 및 행정 부담", effect: "회진 중 나누는 대화를 실시간으로 텍스트로 변환하고 핵심 내용을 추출하여 EMR에 자동 기록함" },
+                { title: "처방 오류 감지", tech: "데이터 분석 및 예측 AI", pain: "복잡한 약물 상호작용이나 환자 특이사항에 따른 처방 오류 가능성", effect: "실시간으로 처방 내역을 분석하여 부작용이나 오류 가능성이 있을 경우 즉시 경고를 보냄" },
+                { title: "외래 환자 분류 AI", tech: "예측 분석 AI", pain: "외래 환자의 중증도나 진료 시급성을 판단하는 데 소요되는 시간과 인력 소모", effect: "환자의 증상과 기초 데이터를 기반으로 진료 우선순위를 자동 분류하여 효율적인 진료를 지원함" },
+                { title: "개인 맞춤형 진료 가이드", tech: "생성형 AI", pain: "환자 개개인의 병력과 유전적 특성을 고려한 최적의 치료 계획 수립의 복잡성", effect: "방대한 환자 데이터를 분석하여 개인별 최적화된 치료 옵션과 사후 관리 가이드를 제안함" },
+                { title: "수술실 실시간 모니터링", tech: "컴퓨터 비전", pain: "수술 중 예기치 못한 상황이나 프로토콜 미준수 상황을 실시간으로 감시하기 어려움", effect: "AI가 수술 과정을 모니터링하여 위험 상황 발생 시 즉각 알림을 주고 수술 기록을 보조함" },
+                { title: "약물 상호작용 체크", tech: "데이터 분석", pain: "다제 복용 환자의 경우 약물 간 충돌 위험을 수동으로 확인하는 데 한계가 있음", effect: "환자의 전체 투약 이력을 AI가 분석하여 위험한 조합을 사전에 차단함" },
+                { title: "희귀 질환 진단 보조", tech: "딥러닝", pain: "희귀 질환의 경우 증상이 모호하여 진단까지 오랜 시간이 걸리는 '진단 방랑' 발생", effect: "전 세계 희귀 질환 데이터를 학습한 AI가 환자의 증상을 분석하여 가능성 높은 질환을 추천함" },
+                { title: "환자 예후 예측", tech: "머신러닝", pain: "중증 환자의 상태 악화 시점을 미리 예측하여 대응하기 어려움", effect: "활력 징후 데이터를 실시간 분석하여 상태 악화 6~12시간 전 미리 경고를 보냄" },
+                { title: "유전체 분석 맞춤 치료", tech: "바이오인포매틱스 AI", pain: "유전체 데이터를 임상 진료에 즉각적으로 활용하기 위한 분석 인프라 부족", effect: "환자의 유전적 특성에 가장 잘 반응하는 항암제나 약물을 AI가 선별하여 제안함" },
+                { title: "응급 환자 중증도 분류", tech: "Triage AI", pain: "응급실 과밀화 상황에서 환자의 시급성을 객관적으로 빠르게 판단해야 함", effect: "기초 활력 징후와 주호소를 기반으로 AI가 즉시 중증도를 분류하여 의료진에게 전달함" },
+                { title: "비대면 협진 시스템", tech: "화상 AI 분석", pain: "타 병원 혹은 타 과 전문의와의 협진 시 데이터 공유와 소통의 비효율성", effect: "AI가 협진 중 언급되는 데이터를 자동 정리하고 관련 참고 자료를 실시간으로 띄워줌" },
+                { title: "의료 장비 최적화", tech: "IoT/AI", pain: "고가의 의료 장비 가동률이 낮거나 불필요한 대기 시간이 발생하는 경우", effect: "장비 사용 패턴을 분석하여 최적의 예약 스케줄을 제안하고 고장 징후를 미리 포착함" },
+                { title: "감염병 확산 예측", tech: "빅데이터 분석", pain: "원내 감염병 발생 시 확산 경로를 파악하고 선제적으로 대응하기 어려움", effect: "환자 및 의료진 동선을 분석하여 감염 위험 구역을 실시간으로 식별하고 격리를 권고함" }
+            ],
+            nurse: [
+                { title: "스마트 인수인계", tech: "음성 인식 (STT) 및 요약 AI", pain: "교대 근무 시 구두 인수인계 과정에서의 정보 누락 및 전산 입력 시간 과다 소요", effect: "인수인계 내용을 AI가 즉시 텍스트로 변환하고 핵심 업무 리스트로 정리하여 전산에 자동 입력함" },
+                { title: "환자 거동 감지", tech: "컴퓨터 비전", pain: "병동 내 낙상 사고 등 환자의 위험 상황을 실시간으로 파악하기 어려운 한계", effect: "병상 카메라가 환자의 위험한 움직임을 미리 감지하여 간호사 호출기로 즉시 알림을 보냄" },
+                { title: "교대 근무 자동 편성", tech: "최적화 알고리즘 AI", pain: "숙련도와 선호도를 고려한 공정한 듀티표 작성에 소요되는 수동 작업의 번거로움", effect: "개별 선호도와 연차별 숙련도를 고려한 최적의 근무표를 AI가 자동으로 생성함" },
+                { title: "투약 모니터링 AI", tech: "IoT 및 실시간 분석 AI", pain: "투약 시간 엄수 및 정확한 용량 투여 여부를 실시간으로 추적하기 어려운 환경", effect: "스마트 링거 및 센서를 통해 투약 상태를 모니터링하고 이상 발생 시 즉시 알림을 제공함" },
+                { title: "병동 물품 재고관리", tech: "예측 분석 AI", pain: "소모품의 과다 재고로 인한 낭비 혹은 갑작스러운 품절 상황 발생", effect: "사용 패턴을 분석하여 적정 재고를 자동으로 유지하고 발주 시점을 미리 알려줌" },
+                { title: "낙상 위험 예측", tech: "머신러닝", pain: "환자의 과거 기록과 현재 상태를 종합하여 낙상 위험을 선제적으로 판단하기 어려움", effect: "환자의 보행 패턴과 약물 복용 이력을 분석하여 낙상 고위험군을 사전에 선별함" },
+                { title: "욕창 예방 모니터링", tech: "컴퓨터 비전", pain: "장기 입원 환자의 체위 변경 시점을 일일이 확인하고 기록하는 데 많은 인력 소모", effect: "환자의 자세를 실시간 감지하여 체위 변경이 필요한 시점에 알람을 주고 기록을 자동화함" },
+                { title: "환자 통증 수치 분석", tech: "안면 인식 AI", pain: "의사소통이 어려운 환자의 통증 정도를 객관적으로 파악하기 어려움", effect: "환자의 표정과 미세한 움직임을 분석하여 통증 수치를 객관화하고 적절한 처치를 돕음" },
+                { title: "스마트 병상 가이드", tech: "음성 AI", pain: "환자들의 반복적인 단순 문의(식사 시간, 검사 일정 등)로 인한 간호 업무 중단", effect: "병상별 AI 스피커가 환자의 단순 문의에 즉각 답변하고 간호사는 전문 간호에 집중함" },
+                { title: "활력 징후 이상 감지", tech: "실시간 분석 AI", pain: "수많은 환자의 활력 징후 모니터링 중 미세한 이상 징후를 놓칠 위험", effect: "데이터의 추세를 분석하여 급격한 변화가 예상되는 환자를 미리 지목하여 알림" },
+                { title: "간호 기록 자동 생성", tech: "자연어 처리 (NLP)", pain: "간호 처치 후 매번 수동으로 기록을 남기는 데 소요되는 행정적 부담", effect: "간호사가 수행한 처치 내용을 음성이나 체크리스트로 입력하면 AI가 정식 간호 기록지로 변환함" },
+                { title: "수액 속도 자동 조절", tech: "IoT/AI", pain: "환자의 움직임에 따라 수액 속도가 변하거나 다 들어갔을 때 즉시 인지하기 어려움", effect: "설정된 속도를 AI가 모니터링하여 자동 조절하고 종료 시점을 정확히 알림" },
+                { title: "환자 식단 관리", tech: "이미지 인식 AI", pain: "환자의 실제 섭취량과 영양 상태를 정확하게 기록하고 관리하기 어려움", effect: "식사 전후 사진을 촬영하면 AI가 섭취 칼로리와 영양소를 계산하여 기록함" },
+                { title: "병동 소음 관리", tech: "사운드 AI", pain: "병동 내 소음이 환자의 수면과 회복을 방해하지만 소음원을 즉각 파악하기 어려움", effect: "소음 수치를 실시간 측정하고 소음 종류를 분석하여 정숙한 환경 유지를 보조함" },
+                { title: "퇴원 교육 챗봇", tech: "대화형 AI", pain: "퇴원 시 복잡한 주의사항을 환자에게 교육해도 금방 잊어버리거나 다시 묻는 경우", effect: "환자 맞춤형 퇴원 가이드를 챗봇 형태로 제공하여 언제든 다시 확인하고 질문할 수 있게 함" }
+            ],
+            admin: [
+                { title: "진료 예약 챗봇", tech: "대화형 AI (Chatbot)", pain: "단순 예약 문의 및 진료 안내 전화 폭주로 인한 상담 인력의 업무 과부하", effect: "환자의 증상을 먼저 상담하고 가장 적합한 의사와 시간대를 자동으로 매칭함" },
+                { title: "보험 청구 사전 검토", tech: "자연어 처리 (NLP)", pain: "복잡한 보험 청구 서류의 기재 오류로 인한 삭감 및 재청구 행정 낭비", effect: "보험 청구 서류를 AI가 전수 검토하여 오류를 수정하고 삭감률을 획기적으로 줄여줌" },
+                { title: "병원 시설 관리 예측", tech: "예측 유지보수 AI", pain: "의료 장비나 시설의 갑작스러운 고장으로 인한 진료 차질 및 수리 비용 발생", effect: "센서 데이터를 분석하여 장비의 고장 징후를 미리 포착하고 최적의 점검 시기를 알려줌" },
+                { title: "다국어 통역 지원", tech: "번역 및 음성 합성 AI", pain: "외국인 환자 진료 시 전문 통역사 부재로 인한 의사소통의 한계", effect: "의료 전문 용어가 포함된 실시간 다국어 통역 서비스를 제공하여 원활한 진료를 도움" },
+                { title: "제증명 발급 자동화", tech: "OCR 및 자동화 AI", pain: "진단서 등 각종 증명서 발급을 위한 대기 시간과 행정 인력의 반복 업무", effect: "키오스크나 모바일에서 AI가 서류를 자동 생성하고 발급하여 대기 시간을 획기적으로 줄임" },
+                { title: "외래 대기 시간 예측", tech: "머신러닝", pain: "불확실한 대기 시간으로 인한 환자의 불만과 원내 혼잡도 증가", effect: "실시간 진료 속도를 분석하여 정확한 대기 시간을 예측하고 환자에게 안내함" },
+                { title: "병원 마케팅 분석", tech: "빅데이터 분석", pain: "환자 유입 경로와 선호 진료과를 파악하여 효과적인 홍보 전략을 세우기 어려움", effect: "지역별/연령별 환자 데이터를 분석하여 타겟팅된 건강 검진 패키지 등을 제안함" },
+                { title: "인사 관리 최적화", tech: "HR AI", pain: "수천 명의 직원 근태 관리와 적재적소의 인력 배치를 결정하는 데 따르는 복잡성", effect: "직원 역량과 업무 부하를 분석하여 최적의 부서 배치와 교육 프로그램을 추천함" },
+                { title: "소모품 구매 자동화", tech: "RPA (로봇 프로세스 자동화)", pain: "수많은 의료 소모품의 발주와 결제 과정을 수동으로 처리하는 비효율성", effect: "재고가 일정 수준 이하로 떨어지면 AI가 최저가 업체를 찾아 자동으로 발주 품의를 올림" },
+                { title: "주차 관리 시스템", tech: "컴퓨터 비전", pain: "병원 내 주차 공간 부족과 입출차 지연으로 인한 내원객의 불편", effect: "빈 주차 공간을 실시간 안내하고 장기 주차 차량을 식별하여 주차 회전율을 높임" },
+                { title: "환자 만족도 분석", tech: "감성 분석 AI", pain: "수만 건의 환자 후기와 민원을 일일이 읽고 핵심 개선 사항을 파악하기 어려움", effect: "텍스트 데이터를 분석하여 긍정/부정 키워드를 추출하고 우선 개선 과제를 도출함" },
+                { title: "의료 폐기물 관리", tech: "비전/IoT", pain: "의료 폐기물의 분리 배출 오류로 인한 환경 오염 및 법적 리스크", effect: "폐기물 투입 시 AI가 종류를 식별하여 올바른 배출을 유도하고 배출량을 자동 기록함" },
+                { title: "식당 메뉴 선호도 예측", tech: "머신러닝", pain: "직원 식당의 잔반 발생량 예측 실패로 인한 식자재 낭비 및 비용 증가", effect: "과거 식사 인원과 메뉴 선호도를 분석하여 정확한 식수 인원을 예측하고 발주량을 조절함" },
+                { title: "보안 구역 출입 통제", tech: "생체 인식 AI", pain: "카드 키 분실이나 도용으로 인한 보안 구역(약제실 등)의 보안 취약점", effect: "얼굴이나 홍채 인식을 통해 등록된 인원만 출입을 허용하고 출입 기록을 철저히 관리함" },
+                { title: "홍보 영상 자동 생성", tech: "생성형 비디오 AI", pain: "병원 소식이나 건강 정보를 영상으로 제작하는 데 드는 시간과 비용 부담", effect: "텍스트 기사나 안내문을 입력하면 AI가 관련 이미지와 자막을 넣은 숏폼 영상을 자동 제작함" }
+            ]
+        };
+
+        let currentTab = 'medical';
+
+        // Initialize Ripple Background
+        function initRipple() {
+            const bg = document.getElementById('rippleBg');
+            for (let i = 0; i < 6; i++) {
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                const size = 300 + Math.random() * 500;
+                ripple.style.width = size + 'px';
+                ripple.style.height = size + 'px';
+                ripple.style.left = Math.random() * 100 + '%';
+                ripple.style.top = Math.random() * 100 + '%';
+                ripple.style.animationDelay = (i * 2.5) + 's';
+                bg.appendChild(ripple);
+            }
+        }
+
+        // Render Cards
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            
+            const pool = ideaData[currentTab];
+            const shuffled = [...pool].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+
+            selected.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.animationDelay = (index * 0.1) + 's';
+                
+                // Random float duration for each card
+                const floatDur = 5 + Math.random() * 3;
+                card.style.animation = `float ${floatDur}s infinite ease-in-out`;
+                card.style.animationDelay = (index * 0.5) + 's';
+
+                card.innerHTML = `
+                    <div class="card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h3 class="card-title">${data.title}</h3>
+                    <p class="card-desc">${data.pain}</p>
+                `;
+                
+                card.onclick = () => openModal(data);
+                grid.appendChild(card);
+                
+                // Trigger fade in
+                setTimeout(() => card.classList.add('show'), 50);
+            });
+        }
+
+        // Tab Change
+        function changeTab(tab, btn) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderCards();
+        }
+
+        // Modal Logic
+        function openModal(data) {
+            document.getElementById('modalTitle').innerText = data.title;
+            document.getElementById('modalTech').innerText = data.tech;
+            document.getElementById('modalPain').innerText = data.pain;
+            document.getElementById('modalEffect').innerText = data.effect;
+            
+            const overlay = document.getElementById('modalOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 400);
+        }
+
+        // Init
+        window.onload = () => {
+            initRipple();
+            renderCards();
+        };
+    </script>
+</body>
+</html>
