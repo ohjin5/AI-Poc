@@ -720,9 +720,9 @@ export default function App() {
         </motion.div>
 
         {/* Info Box */}
-        <div className={`max-w-4xl mx-auto ${currentTheme.lightBg}/50 rounded-2xl p-4 md:p-5 mb-8 flex items-start gap-3 border ${currentTheme.border}/30 text-left`}>
-          <Lightbulb className={`w-5 h-5 md:w-6 md:h-6 ${currentTheme.text} shrink-0 mt-0.5`} />
-          <p className="text-sm md:text-base text-gray-600 leading-relaxed break-keep">
+        <div className="max-w-4xl mx-auto bg-blue-50/80 rounded-3xl p-4 md:p-5 mb-8 flex items-start gap-3 border border-blue-100 shadow-sm text-left">
+          <Lightbulb className="w-5 h-5 md:w-6 md:h-6 text-blue-500 shrink-0 mt-0.5" />
+          <p className="text-sm md:text-base text-slate-600 leading-relaxed break-keep">
             <span className="font-bold">안내:</span> 예시 가이드를 그대로 활용하여 제출하셔도 좋습니다. 하지만 현장에서 직접 겪으신 여러분만의 생생한 경험과 새로운 아이디어가 혁신에 가장 큰 힘이 됩니다. 예시는 가볍게 참고만 부탁드립니다!
           </p>
         </div>
