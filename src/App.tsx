@@ -14,6 +14,10 @@ import {
   RefreshCw,
   Sparkles,
   Lightbulb,
+  Trophy,
+  Medal,
+  Gift,
+  Banknote,
   Activity,
   FileText,
   Mic,
@@ -35,7 +39,8 @@ import {
   ShieldCheck,
   UserPlus,
   BarChart3,
-  Camera
+  Camera,
+  Star
 } from 'lucide-react';
 
 type Occupation = 'medical' | 'nurse' | 'admin';
@@ -644,20 +649,124 @@ export default function App() {
 
       {/* 1. Header */}
       <header className="relative pt-16 pb-8 md:pt-24 md:pb-12 px-6 text-center z-10 max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-3xl md:text-7xl font-black tracking-tight mb-4 md:mb-8 text-gray-900 break-keep">
-            은평 <span className={currentTheme.text}>AI</span> 아이디어 공모
-          </h1>
-          <p className="text-sm md:text-xl text-gray-500 font-medium max-w-2xl mx-auto leading-relaxed break-keep px-4 md:px-0">
-            의료 현장의 작은 아이디어가 혁신의 시작입니다. <br className="hidden md:block" />
-            현장의 불편함을 해결할 당신의 따뜻한 시선을 들려주세요.
-          </p>
+        <div className="flex flex-col items-center">
+          {/* Period Chip */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#E0D7C6] bg-[#F1EDE4]/60 text-[#5D4037] text-[10px] md:text-xs font-semibold mb-3 backdrop-blur-sm tracking-tight"
+          >
+            <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 stroke-[1.5px]" />
+            <span>공모기간: 2026.04.06 - 2026.04.13</span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <h1 className="text-4xl md:text-7xl font-black tracking-tight mb-4 md:mb-8 text-gray-900 break-keep">
+              은평 <span className={currentTheme.text}>AI</span> 아이디어 공모
+            </h1>
+            <p className="text-sm md:text-xl text-gray-500 font-medium max-w-2xl mx-auto leading-relaxed break-keep px-4 md:px-0">
+              작은 아이디어가 혁신의 시작입니다. <br />
+              현장의 불편함을 해결할 당신의 따뜻한 시선을 들려주세요.
+            </p>
+
+          {/* Awards Section */}
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                  delayChildren: 0.3
+                }
+              }
+            }}
+            initial="hidden"
+            animate="show"
+            className="mt-6 md:mt-10 max-w-xl mx-auto px-4"
+          >
+            <div className="bg-white/30 backdrop-blur-xl rounded-[28px] md:rounded-[40px] border border-white/50 p-1 md:p-1.5 flex items-stretch shadow-lg">
+              {[
+                {
+                  rank: '1등',
+                  count: '1명',
+                  prize: '5',
+                  unit: '만원',
+                  color: '#C5A059', // Champagne Gold
+                  stars: 3,
+                  isMain: true,
+                },
+                {
+                  rank: '2등',
+                  count: '2명',
+                  prize: '3',
+                  unit: '만원',
+                  color: '#A0A0A0', // Mute Silver
+                  stars: 2,
+                },
+                {
+                  rank: '3등',
+                  count: '10명',
+                  prize: '1',
+                  unit: '만원',
+                  color: '#B08D57', // Bronze
+                  stars: 1,
+                }
+              ].map((award, idx) => (
+                <motion.div 
+                  key={idx}
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                  className={`flex-1 flex flex-col items-center justify-center py-3 md:py-5 rounded-[20px] md:rounded-[32px] relative overflow-hidden group ${
+                    award.isMain ? 'bg-white/40 shadow-sm border border-white/60 scale-[1.05] z-10' : ''
+                  }`}
+                >
+                  {/* Subtle Radial Gradient Background */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.4)_0%,transparent_70%)] opacity-50" />
+                  
+                  <div className="relative z-10 flex flex-col items-center">
+                    <span className="text-[9px] md:text-[11px] font-bold text-gray-500 mb-1.5 tracking-widest">{award.rank}</span>
+                    
+                    <div className="flex gap-0.5 mb-2 group-hover:scale-110 transition-transform duration-500">
+                      {[...Array(award.stars)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className="w-3 h-3 md:w-4 md:h-4" 
+                          style={{ 
+                            color: award.color,
+                            filter: `drop-shadow(0 0 6px ${award.color}60)`
+                          }} 
+                          strokeWidth={1.5} 
+                          fill={award.color}
+                        />
+                      ))}
+                    </div>
+                    
+                    <div className="flex items-baseline mb-1">
+                      <span className={`text-xl md:text-3xl font-serif font-black tracking-tighter ${
+                        award.isMain ? 'text-[#B8860B]' : 'text-gray-900'
+                      }`}>
+                        {award.prize}
+                      </span>
+                      <span className="text-[10px] md:text-sm font-sans font-bold text-gray-600 ml-0.5">{award.unit}</span>
+                    </div>
+                    
+                    <span className="text-[8px] md:text-[10px] text-gray-400 font-semibold tracking-tight">({award.count})</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
-      </header>
+      </div>
+    </header>
 
       {/* 2. CTA Section */}
       <section className="relative py-6 md:py-12 px-6 z-10">
